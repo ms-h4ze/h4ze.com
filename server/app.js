@@ -5,9 +5,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const usersRouter = require('./routes/users');
 
 var app = express();
+
+const { isTableExists } = require("./middlewares");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,7 +22,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
+app.get('/install', usersRouter.createTable)
+app.get('/users', isTableExists, usersRouter.getUsers)
+app.get('/users/:id', isTableExists, usersRouter.getUserById)
+app.post('/users', isTableExists, usersRouter.createUser)
+app.put('/users/:id', isTableExists, usersRouter.updateUser)
+app.delete('/users/:id', isTableExists, usersRouter.deleteUser)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
